@@ -30,4 +30,4 @@ if __name__ == "__main__":
     a = monitor()
     for i in range(100):
         a.get_heart_rate()
-    a.close()
+    a.close() #riley was here
