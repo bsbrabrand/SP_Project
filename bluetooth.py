@@ -3,7 +3,7 @@ class monitor:
         import bluetooth #need to install? Bluez library for linux
         import time
         # Replace with the actual address of your heart rate monitor
-        address = "00:00:00:00:00:00"
+        address = "F3:7C:B0:DD:7C:D0"
 
         # Create a socket
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
