@@ -38,10 +38,9 @@ def main():
 
                 st.line_chart(heart_rate_trend)
                 #time.sleep(1)
-                currenttime = time.time()-st.session_state.start_time
-                while currenttime < (int(oldtime)+1):
+                while time.time()-st.session_state.start_time < (int(oldtime)+1):
                     time.sleep(0.001)
-                    currenttime = time.time()-st.session_state.start_time
+                currenttime = time.time()-st.session_state.start_time
 
                 st.write(f"Timer: {int(currenttime)} seconds")
 
@@ -49,7 +48,7 @@ if __name__ == "__main__":
     main()
 
 ########break############
-
+# ignore this all
 
 
 # import streamlit as st
