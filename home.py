@@ -17,6 +17,8 @@ st.markdown(hide_default_format, unsafe_allow_html=True)
 
 #Global variables
 st.session_state.connected = False
+st.session_state.ID = "00002a37-0000-1000-8000-00805f9b34fb"
+st.session_state.workout = None
 
 menu()
 

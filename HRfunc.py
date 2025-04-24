@@ -2,6 +2,7 @@ import asyncio
 from bleak import BleakClient, BleakScanner
 
 # UUID for Heart Rate Measurement (standard for BLE HRM devices)
+global HR_UUID
 HR_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 
 # Global variable to store the heart rate
@@ -42,9 +43,10 @@ async def get_heart_rate(client):
     """Retrieve the current heart rate value."""
     global current_heart_rate
     current_heart_rate = None  # Reset before reading
+    await client.start_notify(HR_UUID, parse_hr_data)
 
     # Wait for a short period to receive the heart rate value
-    for _ in range(20):  # max wait ~5 seconds
+    for _ in range(100):  # max wait ~5 seconds
         await asyncio.sleep(0.25)
         if current_heart_rate is not None:
             break
@@ -55,7 +57,7 @@ async def get_heart_rate(client):
     return current_heart_rate
 
 async def disconnect_from_heart_rate_sensor(name,ID):
-    await name.stop_notify(HR_UUID)
+    await name.stop_notify(ID)
     await name.disconnect()
 
 # Example usage
@@ -69,7 +71,7 @@ async def main():
         print(f"Current heart rate: {heart_rate} bpm")
 
         # Stop notifications and disconnect
-        disconnect_from_heart_rate_sensor(client,HR_UUID)
+        await disconnect_from_heart_rate_sensor(client,HR_UUID)
 
     except Exception as e:
         print(f"Error: {e}")
