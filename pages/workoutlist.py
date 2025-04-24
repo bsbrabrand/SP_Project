@@ -25,24 +25,24 @@ with tab1:
     st.header("Basic Workout")
     st.markdown("""
 - Warm up
-  - 10 bicup curls
+  - 10 bicep curls
   - 10 second rest
 - Main set
-  - 20 bicup curls
+  - 20 bicep curls
   - 1 minute rest
 """)
 with tab2:
     st.header("Advanced Workout")
     st.markdown("""
 - Warm up
-  - 50 bicup curls
+  - 50 bicep curls
   - 10 second rest
 - Main set
-  - 100 bicup curls
+  - 100 bicep curls
   - 1 minute rest
 """)
 with tab3:
     st.header("Open Workout")
     st.markdown("""
-For this workout, the timer will count up and track how many bicup curls are done.
+For this workout, the timer will count up and track how many bicep curls are done.
 """)
