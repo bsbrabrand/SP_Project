@@ -54,6 +54,10 @@ async def get_heart_rate(client):
     
     return current_heart_rate
 
+async def disconnect_from_heart_rate_sensor(name,ID):
+    await name.stop_notify(HR_UUID)
+    await name.disconnect()
+
 # Example usage
 async def main():
     try:
@@ -65,8 +69,7 @@ async def main():
         print(f"Current heart rate: {heart_rate} bpm")
 
         # Stop notifications and disconnect
-        await client.stop_notify(HR_UUID)
-        await client.disconnect()
+        disconnect_from_heart_rate_sensor(client,HR_UUID)
 
     except Exception as e:
         print(f"Error: {e}")

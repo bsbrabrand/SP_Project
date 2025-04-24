@@ -5,13 +5,16 @@ import time
 import asyncio
 from bleak import BleakClient, BleakScanner
 from HRfunc import parse_hr_data, get_heart_rate, connect_to_heart_rate_sensor
-#from blueTooth import monitor
 
 # UUID for Heart Rate Measurement (standard for BLE HRM devices)
 HR_UUID = "00002a37-0000-1000-8000-00805f9b34fb"
 
 # Global variable to store the heart rate
 current_heart_rate = None
+
+#Track sensor status
+if "connected" not in st.session_state:
+    st.session_state.connected = False
 
 async def main():
     ############### setup webpage #############################
