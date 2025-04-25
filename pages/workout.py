@@ -68,6 +68,7 @@ def main():
         #reset values so next workout starts fresh
         st.session_state.heart_rate_trend = []
         st.session_state.end_workout = False
+        st.session_state.workout = "None"
 
         #switch to page with workout summaries
         st.switch_page("pages/history.py")
