@@ -6,6 +6,6 @@ menu()
 if len(st.session_state.WO_list) == 0:
     st.write("No workouts recorded")
 else:
-    for WO in st.session_state.WO_list:
+    for WO in reversed(st.session_state.WO_list):
         st.write(WO)
         st.write("\n")

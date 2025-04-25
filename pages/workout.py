@@ -72,8 +72,6 @@ def main():
     # Setup session state
     if "heart_rate_trend" not in st.session_state:
         st.session_state.heart_rate_trend = []
-    # if "start_time" not in st.session_state:
-    #     st.session_state.start_time = time.time()
     if "end_workout" not in st.session_state:
         st.session_state.end_workout = False
 
