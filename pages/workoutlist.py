@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 
 from menu import menu
 def set_workout():
@@ -14,6 +15,7 @@ st.selectbox(
 )
 if st.button("start"):
     if st.session_state.workout != "None" and st.session_state.workout != None:
+        st.session_state.start_time = time.time()
         st.switch_page("pages/workout.py")
     else:
         st.warning("Please select a workout")
