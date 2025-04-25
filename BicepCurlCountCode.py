@@ -66,17 +66,17 @@ while True:
             counter += 1
 
         # Display angle and count on the image
-        cv2.putText(image, f'Elbow Angle: {int(angle)}', (10, 50), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(image, f'Curls: {counter}', (10, 100), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3, cv2.LINE_AA)
-
+        #cv2.putText(image, f'Elbow Angle: {int(angle)}', (10, 50), 
+         #           cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        #cv2.putText(image, f'Curls: {counter}', (10, 100), 
+         #           cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3, cv2.LINE_AA)
+        print(counter)
     # Resize and show image
     resized_frame = cv2.resize(image, (640, 480))
-    cv2.imshow("Pose Detection", resized_frame)
+    #cv2.imshow("Pose Detection", resized_frame)
 
-    if cv2.waitKey(10) & 0xFF == ord('q'):
-        break
+    #if cv2.waitKey(10) & 0xFF == ord('q'):
+    #    break
 
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
 picam2.close()
