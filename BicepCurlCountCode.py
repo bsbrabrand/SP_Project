@@ -2,6 +2,14 @@ from picamera2 import Picamera2
 import cv2
 import mediapipe as mp
 import numpy as np
+from datatransferpi import send_data_to_pc
+import socket
+
+# data transfer info
+pc_ip = "192.168.1.4"  # Replace with your PC's IP address
+pc_port = 65432  # Replace with the port number you want to use
+client_socket=send_data_to_pc(pc_ip,pc_port)
+print("connected")
 
 # Initialize MediaPipe
 mp_drawing = mp.solutions.drawing_utils
@@ -64,6 +72,10 @@ while True:
         if angle < 30 and stage == "Down":
             stage = "Up"
             counter += 1
+        mes = str(counter) + " "
+        print(mes)
+        client_socket.send(mes.encode('utf-8'))
+            
 
         # Display angle and count on the image
         #cv2.putText(image, f'Elbow Angle: {int(angle)}', (10, 50), 

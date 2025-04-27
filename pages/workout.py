@@ -242,12 +242,469 @@
 #     main()
 
 # streamlit_app.py
-import streamlit as st
+# import streamlit as st
+# import time
+# import threading
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+# from data import datastore
+
+# # Global thread-safe store
+# latest_hr_lock = threading.Lock()
+# latest_hr_value = {"value": None}
+
+# def handle_hr(sender, data):
+#     hr = parse_hr_data(sender, data)
+#     print(f"🔄 handle_hr() called: sender={sender}, raw={list(data)}, parsed={hr}")
+#     with latest_hr_lock:
+#         latest_hr_value["value"] = hr
+
+# def main():
+#     # Setup session state
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # BLE Setup
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = connect_ble_client()
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     try:
+#         start_heart_rate_notifications(st.session_state.ble_client, handle_hr)
+#     except Exception as e:
+#         st.error(f"Notification setup failed: {e}")
+#         time.sleep(2)
+#         st.switch_page("home.py")
+
+#     # Layout
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Workout loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         # Safely get heart rate
+#         with latest_hr_lock:
+#             hr = latest_hr_value["value"]
+
+#         if hr:
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         # Wait ~1s before next reading
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         stop_ble_client(st.session_state.ble_client)
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # You can adjust this as needed
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset session for next workout
+#     for key in ["heart_rate_trend", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
+
+# import streamlit as st
+# import time
+# import threading
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client
+# from data import datastore
+
+# # Shared, thread-safe HR store
+# latest_hr_lock = threading.Lock()
+# latest_hr_value = {"value": None}
+
+# def thread_safe_callback(hr):
+#     with latest_hr_lock:
+#         latest_hr_value["value"] = hr
+
+# def main():
+#     # Session state setup
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # Connect BLE device
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = connect_ble_client()
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     try:
+#         start_heart_rate_notifications(st.session_state.ble_client, thread_safe_callback)
+#     except Exception as e:
+#         st.error(f"Notification setup failed: {e}")
+#         time.sleep(2)
+#         st.switch_page("home.py")
+
+#     # UI setup
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Main loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         with latest_hr_lock:
+#             hr = latest_hr_value["value"]
+
+#         if hr:
+#             st.session_state.latest_hr = hr
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         stop_ble_client(st.session_state.ble_client)
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # Customize as needed
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset state
+#     for key in ["heart_rate_trend", "latest_hr", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
+
+# import streamlit as st
+# import time
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+# from data import datastore
+
+# def main():
+#     # Setup session state
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # BLE Setup
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = connect_ble_client()
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     if "latest_hr" not in st.session_state:
+#         st.session_state.latest_hr = None
+#         def handle_hr(sender, data):
+#             st.session_state.latest_hr = parse_hr_data(sender, data)
+
+#         try:
+#             start_heart_rate_notifications(st.session_state.ble_client, handle_hr)
+#         except Exception as e:
+#             st.error(f"Notification setup failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     # Layout
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Workout loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         hr = st.session_state.latest_hr
+#         if hr:
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         stop_ble_client(st.session_state.ble_client)
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # You can adjust this as needed
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset session for next workout
+#     for key in ["heart_rate_trend", "latest_hr", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
+
+# import streamlit as st
+# import time
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+# from data import datastore
+
+# def main():
+#     # Setup session state
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # BLE Setup
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = connect_ble_client()
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     if "latest_hr" not in st.session_state:
+#         st.session_state.latest_hr = None
+#         def handle_hr(sender, data):
+#             st.session_state.latest_hr = parse_hr_data(sender, data)
+
+#         try:
+#             start_heart_rate_notifications(st.session_state.ble_client, handle_hr)
+#         except Exception as e:
+#             st.error(f"Notification setup failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     # Layout
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Workout loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         hr = st.session_state.latest_hr
+#         if hr:
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         stop_ble_client(st.session_state.ble_client)
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # You can adjust this as needed
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset session for next workout
+#     for key in ["heart_rate_trend", "latest_hr", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
+
+# import time
+# import streamlit as st
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+# from data import datastore
+# import asyncio
+
+# def main():
+#     # Setup session state
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # BLE Setup
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = asyncio.run(connect_ble_client())  # Use asyncio.run() to run async function
+#             print(st.session_state.ble_client)
+#             print("test\n")
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     if "latest_hr" not in st.session_state:
+#         st.session_state.latest_hr = None
+
+#         def handle_hr(sender, data):
+#             st.session_state.latest_hr = parse_hr_data(sender, data)
+
+#         try:
+#             asyncio.run(start_heart_rate_notifications(st.session_state.ble_client, handle_hr))  # Run notification handler on main loop
+#         except Exception as e:
+#             st.error(f"Notification setup failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     # Layout
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Workout loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         hr = st.session_state.latest_hr
+#         if hr:
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         asyncio.run(stop_ble_client(st.session_state.ble_client))  # Ensure stop notification is called in main loop
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # Adjust based on your rep counting logic
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset session for next workout
+#     for key in ["heart_rate_trend", "latest_hr", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
+
 import time
+import asyncio
+import streamlit as st
 from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
 from data import datastore
 
-def main():
+async def main():
     # Setup session state
     if "heart_rate_trend" not in st.session_state:
         st.session_state.heart_rate_trend = []
@@ -257,9 +714,9 @@ def main():
         st.session_state.start_time = time.time()
 
     # BLE Setup
-    if not st.session_state.get("ble_client"):
+    if "ble_client" not in st.session_state:
         try:
-            st.session_state.ble_client = connect_ble_client()
+            st.session_state.ble_client = await connect_ble_client()  # Use await to get the client
         except Exception as e:
             st.error(f"Connection failed: {e}")
             time.sleep(2)
@@ -267,11 +724,13 @@ def main():
 
     if "latest_hr" not in st.session_state:
         st.session_state.latest_hr = None
+
+        # Define HR update callback
         def handle_hr(sender, data):
             st.session_state.latest_hr = parse_hr_data(sender, data)
 
         try:
-            start_heart_rate_notifications(st.session_state.ble_client, handle_hr)
+            await start_heart_rate_notifications(st.session_state.ble_client, handle_hr)  # Run notification setup here
         except Exception as e:
             st.error(f"Notification setup failed: {e}")
             time.sleep(2)
@@ -307,13 +766,13 @@ def main():
 
     # Cleanup
     try:
-        stop_ble_client(st.session_state.ble_client)
+        await stop_ble_client(st.session_state.ble_client)  # Stop notification properly
     except:
         pass
 
     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
     tottime = time.time() - st.session_state.start_time
-    totalreps = 0  # You can adjust this as needed
+    totalreps = 0  # Adjust based on your rep counting logic
 
     st.session_state.WO_list.append(
         datastore(tottime, avgHR, totalreps, st.session_state.workout)
@@ -326,8 +785,97 @@ def main():
 
     st.switch_page("pages/history.py")
 
+# Run the async main function
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
+
+
+# import streamlit as st
+# import time
+# from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+# from data import datastore
+
+# def main():
+#     # Setup session state
+#     if "heart_rate_trend" not in st.session_state:
+#         st.session_state.heart_rate_trend = []
+#     if "end_workout" not in st.session_state:
+#         st.session_state.end_workout = False
+#     if "start_time" not in st.session_state:
+#         st.session_state.start_time = time.time()
+
+#     # BLE Setup
+#     if not st.session_state.get("ble_client"):
+#         try:
+#             st.session_state.ble_client = connect_ble_client()
+#         except Exception as e:
+#             st.error(f"Connection failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     if "latest_hr" not in st.session_state:
+#         st.session_state.latest_hr = None
+#         def handle_hr(sender, data):
+#             st.session_state.latest_hr = parse_hr_data(sender, data)
+
+#         try:
+#             start_heart_rate_notifications(st.session_state.ble_client, handle_hr)
+#         except Exception as e:
+#             st.error(f"Notification setup failed: {e}")
+#             time.sleep(2)
+#             st.switch_page("home.py")
+
+#     # Layout
+#     static_ui = st.container()
+#     graph = st.empty()
+
+#     with static_ui:
+#         st.title("Heart Rate Monitor Dashboard")
+#         st.write("Click the button below to end your workout.")
+#         if st.button("End Workout", key="end_workout_button"):
+#             st.session_state.end_workout = True
+
+#     # Workout loop
+#     while not st.session_state.end_workout:
+#         oldtime = time.time() - st.session_state.start_time
+
+#         hr = st.session_state.latest_hr
+#         if hr:
+#             st.session_state.heart_rate_trend.append(hr)
+
+#         with graph.container():
+#             st.write(f"Your current heart rate: {hr if hr else 'Waiting...'} bpm")
+#             if st.session_state.heart_rate_trend:
+#                 st.line_chart(st.session_state.heart_rate_trend)
+#             elapsed = int(time.time() - st.session_state.start_time)
+#             st.write(f"Timer: {elapsed} seconds")
+
+#         while time.time() - st.session_state.start_time < int(oldtime) + 1:
+#             time.sleep(0.01)
+
+#     # Cleanup
+#     try:
+#         stop_ble_client(st.session_state.ble_client)
+#     except:
+#         pass
+
+#     avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
+#     tottime = time.time() - st.session_state.start_time
+#     totalreps = 0  # You can adjust this as needed
+
+#     st.session_state.WO_list.append(
+#         datastore(tottime, avgHR, totalreps, st.session_state.workout)
+#     )
+
+#     # Reset session for next workout
+#     for key in ["heart_rate_trend", "latest_hr", "ble_client", "end_workout", "workout", "start_time"]:
+#         if key in st.session_state:
+#             del st.session_state[key]
+
+#     st.switch_page("pages/history.py")
+
+# if __name__ == "__main__":
+#     main()
 
 
 # import streamlit as st
