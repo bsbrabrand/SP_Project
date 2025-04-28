@@ -99,5 +99,5 @@ while True:
 
         #cv2.destroyAllWindows()
         #picam2.close()
-    except BrokenPipeError:
+    except (BrokenPipeError, ConnectionResetError):
         pass
