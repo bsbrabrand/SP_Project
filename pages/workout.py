@@ -1,7 +1,7 @@
-import streamlit as st
 import time
 import asyncio
-from HRfunc import get_heart_rate
+import streamlit as st
+from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
 from data import datastore
 from datatransferpc import receive_data_from_pi
 
@@ -65,7 +65,6 @@ def main():
             with st.spinner("Connecting to Raspberry Pi"):
                 conn = receive_data_from_pi(pc_ip, pc_port) #set up connection
             
-
         # Static Part of website
         with static_ui:
             st.title("Heart Rate Monitor Dashboard")
@@ -124,6 +123,6 @@ def main():
 
         # Switch to page with workout summaries
         st.switch_page("pages/history.py")
-
+        
 if __name__ == "__main__":
-    main()
+  main()
