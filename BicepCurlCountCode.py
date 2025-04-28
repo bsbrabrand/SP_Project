@@ -3,16 +3,14 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from datatransferpi import send_data_to_pc
-import socket
 from gpiozero import Buzzer
 
-# set up buzzer
+# Set up buzzer on GPIO 18
 buzz = Buzzer(18)
 
-# data transfer info
-pc_ip = "192.168.1.4"  # Replace with your PC's IP address
-pc_port = 65432  # Replace with the port number you want to use
-
+# Get info for socket connection with laptop
+pc_ip = input("Please enter the laptop's IP address:\n") or "192.168.1.4" #default value from home network
+pc_port = 65432  # random port number that worked when we tested with it
 
 # Initialize MediaPipe
 mp_drawing = mp.solutions.drawing_utils
@@ -20,12 +18,12 @@ mp_pose = mp.solutions.pose
 
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-# Start the camera
+# Initialize the camera using picamera2
 picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"format": 'RGB888', "size": (1920, 1080)}))
 picam2.start()
 
-# Step 6: Define angle calculation function
+# Function to calculate arm angle
 def calculate_angle(a, b, c):
     a = np.array(a)
     b = np.array(b)
@@ -39,18 +37,19 @@ def calculate_angle(a, b, c):
 
     return angle
 
-# Step 7: Start counter
-counter = 0
-stage = None
+
+#Main loop
 while True:
     try:
+        #for new connection, intitilize defaults
         counter=0
+        stage = None
         client_socket=send_data_to_pc(pc_ip,pc_port)
         print("connected")
         while True:
             frame = picam2.capture_array()
 
-            # Convert to RGB for MediaPipe
+            # Mediapipe using RGB color, so it must be converted from BGR
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image.flags.writeable = False
             results = pose.process(image)
@@ -59,7 +58,7 @@ while True:
 
             # Draw pose landmarks
             if results.pose_landmarks:
-                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+                #mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
                 # Extract landmarks for left arm
                 landmarks = results.pose_landmarks.landmark
