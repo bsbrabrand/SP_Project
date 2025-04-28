@@ -1,42 +1,29 @@
+import streamlit as st
 import time
 import asyncio
-import streamlit as st
-from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+from HRfunc import get_heart_rate
 from data import datastore
 from datatransferpc import receive_data_from_pi
-
-############### setup webpage #############################
-st.set_page_config(
-    page_title="Heart Rate Dashboard",
-    page_icon="♥️",
-    layout="wide",
-)
-hide_default_format = """
-    <style>
-    #MainMenu {visibility: hidden; }
-    footer {visibility: hidden;}
-    </style>
-    """
-st.markdown(hide_default_format, unsafe_allow_html=True)
+import socket
 
 async def get_heart_rate_and_reps(client, conn):
-    """Get values for both heart rate and number of reps"""
+    """Retrieve heart rate and rep count data simultaneously."""
+    # Start heart rate data retrieval
     try:
-        heart_rate = await get_heart_rate(client)
+        heart_rate = await get_heart_rate(client)  # Get heart rate asynchronously
+        # Receive rep count from Raspberry Pi asynchronously
         total_reps = await asyncio.to_thread(receive_reps_from_pi, conn)
-        #Since multiple reps values can be sent in the time it takes to read a heart rate, take the most recent value only
-        tot_reps = total_reps.split(" ")[-2] # format is "# # " so second to last element is the number
     except Exception as e:
         st.error(f"Error: {e}")
         return None, None
-    return heart_rate, tot_reps
+    return heart_rate, total_reps
 
 def receive_reps_from_pi(conn):
-    """Read in the value of reps from the Raspeberry Pi"""
+    """Receive rep count from Raspberry Pi in a blocking manner."""
     return conn.recv(1024).decode('utf-8')
 
 def main():
-    # Setup workout default values
+    # Setup workout values
     if "heart_rate_trend" not in st.session_state:
         st.session_state.heart_rate_trend = []
     if "end_workout" not in st.session_state:
@@ -48,7 +35,7 @@ def main():
     if not st.session_state.connected:
         st.error("No heart rate sensor connected.")
         time.sleep(2)
-        st.switch_page("home.py")
+        st.switch_page("pages/home.py")
     elif st.session_state.workout is None:
         st.warning("No workout selected, redirecting...")
         time.sleep(2)
@@ -59,59 +46,48 @@ def main():
         graph = st.empty()
 
         # Start socket
-        pc_ip = "192.168.1.4"  #PC's IP address
-        pc_port = 65432  # random port number that worked when we tested with it
-        if not st.session_state.end_workout:
-            with st.spinner("Connecting to Raspberry Pi"):
-                conn = receive_data_from_pi(pc_ip, pc_port) #set up connection
-            
+        pc_ip = "192.168.1.4"  # Replace with your PC's IP address
+        pc_port = 65432  # Replace with the port number you want to use
+        conn = receive_data_from_pi(pc_ip, pc_port)
+
         # Static Part of website
         with static_ui:
             st.title("Heart Rate Monitor Dashboard")
             st.write("Click the button below to end your workout.")
-            if st.button("End Workout", key="end_workout_button"): #if button is clicked
+            if st.button("End Workout", key="end_workout_button"):
                 st.session_state.end_workout = True
 
         # Dynamic Part of Website
         while not st.session_state.end_workout:
             # Record current time
-            #oldtime = time.time() - st.session_state.start_time
-            # Get heart rate and rep count using asyncio
+            oldtime = time.time() - st.session_state.start_time
+            # Get heart rate and rep count asynchronously
             heart_rate, total_reps = asyncio.run(get_heart_rate_and_reps(st.session_state.client, conn))
             
             if heart_rate is None or total_reps is None:
-                break  # exit the loop if no data
+                break  # Handle any errors or termination of the loop
 
-            # update the heart rate trend list and rep count value
+            # Update the heart rate trend and rep count
             st.session_state.heart_rate_trend.append(heart_rate)
             st.session_state.total_reps = total_reps
 
-            # Update only the graph area of the website here
+            # Update only the graph area
             with graph.container():
                 st.write(f"Your current heart rate: {int(heart_rate)} bpm")
                 st.line_chart(st.session_state.heart_rate_trend)
                 elapsed = int(time.time() - st.session_state.start_time)
                 st.write(f"Timer: {elapsed} seconds")
-                if st.session_state.workout == "Basic":
-                    st.write(f"Total Reps: {st.session_state.total_reps}/10")
-                    if int(st.session_state.total_reps)==10:
-                        st.session_state.end_workout=True
-                elif st.session_state.workout == "Advanced":
-                    st.write(f"Total Reps: {st.session_state.total_reps}/50")
-                    if int(st.session_state.total_reps)==50:
-                        st.session_state.end_workout=True
-                else:
-                    st.write(f"Total Reps: {st.session_state.total_reps}")
+                st.write(f"Total Reps: {st.session_state.total_reps}")  # Display the current rep count
 
-                # Delay if needed so it doesn't update faster than 1/s
-               # while time.time() - st.session_state.start_time < (int(oldtime) + 1):
-                   # time.sleep(0.001)
+            # Delay if needed so it doesn't update faster than 1/s
+            while time.time() - st.session_state.start_time < (int(oldtime) + 1):
+                time.sleep(0.001)
 
         # Save data and end workout
         avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
         tottime = time.time() - st.session_state.start_time
         totalreps = st.session_state.total_reps
-        #conn.close()
+        conn.close()
 
         st.session_state.WO_list.append(
             datastore(tottime, avgHR, totalreps, st.session_state.workout)
@@ -123,6 +99,6 @@ def main():
 
         # Switch to page with workout summaries
         st.switch_page("pages/history.py")
-        
+
 if __name__ == "__main__":
-  main()
+    main()

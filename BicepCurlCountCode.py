@@ -12,6 +12,7 @@ buzz = Buzzer(18)
 pc_ip = input("Please enter the laptop's IP address:\n") or "192.168.1.4" #default value from home network
 pc_port = 65432  # random port number that worked when we tested with it
 
+
 # Initialize MediaPipe
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -22,6 +23,7 @@ pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 picam2 = Picamera2()
 picam2.configure(picam2.create_preview_configuration(main={"format": 'RGB888', "size": (1920, 1080)}))
 picam2.start()
+
 
 # Function to calculate arm angle
 def calculate_angle(a, b, c):
@@ -36,7 +38,6 @@ def calculate_angle(a, b, c):
         angle = 360 - angle
 
     return angle
-
 
 #Main loop
 while True:
