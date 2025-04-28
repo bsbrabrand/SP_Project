@@ -1,7 +1,7 @@
+import streamlit as st
 import time
 import asyncio
-import streamlit as st
-from HRfunc import connect_ble_client, start_heart_rate_notifications, stop_ble_client, parse_hr_data
+from HRfunc import get_heart_rate
 from data import datastore
 from datatransferpc import receive_data_from_pi
 
@@ -123,6 +123,6 @@ def main():
 
         # Switch to page with workout summaries
         st.switch_page("pages/history.py")
-        
+
 if __name__ == "__main__":
-  main()
+    main()
