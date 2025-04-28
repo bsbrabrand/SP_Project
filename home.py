@@ -1,5 +1,4 @@
 import streamlit as st
-from menu import menu
 import time
 import asyncio
 from HRfunc import connect_to_heart_rate_sensor

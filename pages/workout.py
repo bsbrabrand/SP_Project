@@ -5,6 +5,20 @@ from HRfunc import get_heart_rate
 from data import datastore
 from datatransferpc import receive_data_from_pi
 
+############### setup webpage #############################
+st.set_page_config(
+    page_title="Heart Rate Dashboard",
+    page_icon="♥️",
+    layout="wide",
+)
+hide_default_format = """
+    <style>
+    #MainMenu {visibility: hidden; }
+    footer {visibility: hidden;}
+    </style>
+    """
+st.markdown(hide_default_format, unsafe_allow_html=True)
+
 async def get_heart_rate_and_reps(client, conn):
     """Get values for both heart rate and number of reps"""
     try:
@@ -47,7 +61,10 @@ def main():
         # Start socket
         pc_ip = "192.168.1.4"  #PC's IP address
         pc_port = 65432  # random port number that worked when we tested with it
-        conn = receive_data_from_pi(pc_ip, pc_port) #set up connection
+        if not st.session_state.end_workout:
+            with st.spinner("Connecting to Raspberry Pi"):
+                conn = receive_data_from_pi(pc_ip, pc_port) #set up connection
+            
 
         # Static Part of website
         with static_ui:
@@ -76,7 +93,16 @@ def main():
                 st.line_chart(st.session_state.heart_rate_trend)
                 elapsed = int(time.time() - st.session_state.start_time)
                 st.write(f"Timer: {elapsed} seconds")
-                st.write(f"Total Reps: {st.session_state.total_reps}")
+                if st.session_state.workout == "Basic":
+                    st.write(f"Total Reps: {st.session_state.total_reps}/10")
+                    if int(st.session_state.total_reps)==10:
+                        st.session_state.end_workout=True
+                elif st.session_state.workout == "Advanced":
+                    st.write(f"Total Reps: {st.session_state.total_reps}/50")
+                    if int(st.session_state.total_reps)==50:
+                        st.session_state.end_workout=True
+                else:
+                    st.write(f"Total Reps: {st.session_state.total_reps}")
 
                 # Delay if needed so it doesn't update faster than 1/s
                # while time.time() - st.session_state.start_time < (int(oldtime) + 1):

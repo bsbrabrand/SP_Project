@@ -26,25 +26,19 @@ tab1, tab2, tab3 = st.tabs(["Basic Workout", "Advanced Workout", "Open Workout"]
 with tab1:
     st.header("Basic Workout")
     st.markdown("""
-- Warm up
+- Easy workout
   - 10 bicep curls
-  - 10 second rest
-- Main set
-  - 20 bicep curls
-  - 1 minute rest
+
 """)
 with tab2:
     st.header("Advanced Workout")
     st.markdown("""
-- Warm up
+- Hard workout
   - 50 bicep curls
-  - 10 second rest
-- Main set
-  - 100 bicep curls
-  - 1 minute rest
 """)
 with tab3:
     st.header("Open Workout")
     st.markdown("""
-For this workout, the timer will count up and track how many bicep curls are done.
+For this workout, there is no set number of curls to complete.
+                Do as many bicep curls as you'd like.
 """)
