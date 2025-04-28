@@ -41,7 +41,7 @@
 #         #start socket
 #         pc_ip = "192.168.1.4"  # Replace with your PC's IP address
 #         pc_port = 65432  # Replace with the port number you want to use
-#         conn = receive_data_from_pi(pc_ip, pc_port)
+#         #conn = receive_data_from_pi(pc_ip, pc_port)
 
 #         # Static Part of website
 #         with static_ui:
@@ -56,7 +56,7 @@
 #             oldtime = time.time()-st.session_state.start_time
 #             # Get new heart rate reading
 #             try:
-#                 hr = asyncio.run(get_heart_rate(st.session_state.client,conn))
+#                 hr = asyncio.run(get_heart_rate(st.session_state.client))
 #                 st.session_state.heart_rate_trend.append(hr)
 #             except Exception as e:
 #                 st.error(f"Error reading heart rate: {e}")
@@ -69,7 +69,7 @@
 #                 st.line_chart(st.session_state.heart_rate_trend)
 #                 elapsed = int(time.time() - st.session_state.start_time)
 #                 st.write(f"Timer: {elapsed} seconds")
-#                 st.write(f"Current reps {st.session_state.total_reps}")
+#                 #st.write(f"Current reps {st.session_state.total_reps}")
 
 #             #delay if needed so it doesn't update faster than 1/s
 #             while time.time()-st.session_state.start_time < (int(oldtime)+1):
@@ -78,8 +78,8 @@
 #         # Save data and end workout
 #         avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
 #         tottime = time.time() - st.session_state.start_time
-#         totalreps = st.session_state.total_reps
-#         conn.close()
+#         totalreps = 0#st.session_state.total_reps
+#         #conn.close()
 
 #         st.session_state.WO_list.append(
 #             datastore(tottime, avgHR, totalreps, st.session_state.workout)
@@ -88,7 +88,7 @@
 #         st.session_state.heart_rate_trend = []
 #         st.session_state.end_workout = False
 #         st.session_state.workout = "None"
-#         st.session_state.total_reps = 0
+#         #st.session_state.total_reps = 0
 
 #         #switch to page with workout summaries
 #         st.switch_page("pages/history.py")
@@ -112,7 +112,7 @@ async def get_heart_rate_and_reps(client, conn):
         heart_rate = await get_heart_rate(client)  # Get heart rate asynchronously
         # Receive rep count from Raspberry Pi asynchronously
         total_reps = await asyncio.to_thread(receive_reps_from_pi, conn)
-        tot_reps = total_reps.split(" ")[-1]
+        tot_reps = total_reps.split(" ")[-2]
     except Exception as e:
         st.error(f"Error: {e}")
         return None, None
@@ -135,7 +135,7 @@ def main():
     if not st.session_state.connected:
         st.error("No heart rate sensor connected.")
         time.sleep(2)
-        st.switch_page("pages/home.py")
+        st.switch_page("home.py")
     elif st.session_state.workout is None:
         st.warning("No workout selected, redirecting...")
         time.sleep(2)
@@ -179,11 +179,12 @@ def main():
                 st.write(f"Timer: {elapsed} seconds")
                 st.write(f"Total Reps: {st.session_state.total_reps}")  # Display the current rep count
 
-            # Delay if needed so it doesn't update faster than 1/s
-            while time.time() - st.session_state.start_time < (int(oldtime) + 1):
-                time.sleep(0.001)
+                # Delay if needed so it doesn't update faster than 1/s
+               # while time.time() - st.session_state.start_time < (int(oldtime) + 1):
+                   # time.sleep(0.001)
 
         # Save data and end workout
+        print("ending workout\n\n\n\n")
         avgHR = sum(st.session_state.heart_rate_trend) / len(st.session_state.heart_rate_trend)
         tottime = time.time() - st.session_state.start_time
         totalreps = st.session_state.total_reps
