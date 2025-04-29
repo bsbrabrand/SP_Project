@@ -21,6 +21,6 @@ def receive_data_from_pi(pc_ip, pc_port):
         print(f"error: {e}")
 
 if __name__ == "__main__":
-    pc_ip = "192.168.1.4" 
+    pc_ip = "172.27.93.71" 
     pc_port = 65432
     receive_data_from_pi(pc_ip, pc_port)
